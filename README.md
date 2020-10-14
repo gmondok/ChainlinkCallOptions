@@ -8,12 +8,12 @@ function writeOption(string memory token, uint strike, uint premium, uint expiry
 
 //Purchase a call option, needs desired token, ID of option and payment  
 ```
-function buyOption(string memory token, uint ID) public payable
+function buyOption(string memory token, uint ID)
 ```
 
 //Exercise your call option, needs desired token, ID of option and payment  
 ```
-function exercise(string memory token, uint ID) public payable
+function exercise(string memory token, uint ID)
 ```
 
 All uints input (strike, premium, tknAmt) are 18 decimal fixed point (meaning 1 is represented as 1e18 or 1 * 10^18) 
