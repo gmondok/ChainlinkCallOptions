@@ -16,6 +16,6 @@ function buyOption(string memory token, uint ID)
 function exercise(string memory token, uint ID)
 ```
 
-All uints input (strike, premium, tknAmt) are 18 decimal fixed point (meaning 1 is represented as 1e18 or 1 * 10^18) 
+All uints input (strike, premium, tknAmt) are 18 decimal (meaning 1 is represented as 1e18 or 1 * 10^18) 
 with the exception of expiry which is Unix time formatted.
 
