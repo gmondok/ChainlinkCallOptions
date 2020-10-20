@@ -16,6 +16,16 @@ function buyOption(string memory token, uint ID)
 function exercise(string memory token, uint ID)
 ```
 
+//Allows option writer to cancel and get their funds back from an unpurchased option
+```
+function cancelOption(string memory token, uint ID)
+```
+
+//Allows writer to retrieve funds from an expired, non-exercised, non-canceled option
+```
+function retrieveExpiredFunds(string memory token, uint ID)
+```
+
 All uints input (strike, premium, tknAmt) are 18 decimal (meaning 1 is represented as 1e18 or 1 * 10^18) 
 with the exception of expiry which is Unix time formatted.
 
