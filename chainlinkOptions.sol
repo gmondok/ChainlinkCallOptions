@@ -148,7 +148,7 @@ contract chainlinkOptions {
         if (tokenHash == ethHash) {
             require(ethOpts[ID].buyer == msg.sender, "You do not own this option");
             require(!ethOpts[ID].exercised, "Option has already been exercised");
-            require(ethOpts[ID].expiry >= now, "Option is expired");
+            require(ethOpts[ID].expiry > now, "Option is expired");
             //Conditions are met, proceed to payouts
             updatePrices();
             //Cost to exercise
@@ -166,7 +166,7 @@ contract chainlinkOptions {
         } else {
             require(linkOpts[ID].buyer == msg.sender, "You do not own this option");
             require(!linkOpts[ID].exercised, "Option has already been exercised");
-            require(linkOpts[ID].expiry >= now, "Option is expired");
+            require(linkOpts[ID].expiry > now, "Option is expired");
             updatePrices();
             uint exerciseVal = linkOpts[ID].strike*linkOpts[ID].amount;
             uint equivLink = exerciseVal.div(linkPrice.mul(10**10));
@@ -185,13 +185,13 @@ contract chainlinkOptions {
         if (tokenHash == ethHash) {
             require(msg.sender == ethOpts[ID].writer, "You did not write this option");
             //Must be expired, not exercised and not canceled
-            require(ethOpts[ID].expiry < now && !ethOpts[ID].exercised && !ethOpts[ID].canceled, "This option is not eligible for withdraw");
+            require(ethOpts[ID].expiry <= now && !ethOpts[ID].exercised && !ethOpts[ID].canceled, "This option is not eligible for withdraw");
             ethOpts[ID].writer.transfer(ethOpts[ID].amount);
             //Repurposing canceled flag to prevent more than one withdraw
             ethOpts[ID].canceled = true;
         } else {
             require(msg.sender == linkOpts[ID].writer, "You did not write this option");
-            require(linkOpts[ID].expiry < now && !linkOpts[ID].exercised && !linkOpts[ID].canceled, "This option is not eligible for withdraw");
+            require(linkOpts[ID].expiry <= now && !linkOpts[ID].exercised && !linkOpts[ID].canceled, "This option is not eligible for withdraw");
             require(LINK.transferFrom(address(this), linkOpts[ID].writer, linkOpts[ID].amount), "Incorrect amount of LINK sent");
             linkOpts[ID].canceled = true;
         }
