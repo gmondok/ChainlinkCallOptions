@@ -2,8 +2,11 @@ pragma solidity ^0.6.7;
 
 import "https://github.com/smartcontractkit/chainlink/blob/develop/evm-contracts/src/v0.6/interfaces/LinkTokenInterface.sol";
 import "https://github.com/smartcontractkit/chainlink/blob/master/evm-contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
 
 contract chainlinkOptions {
+    //Overflow safe operators
+    using SafeMath for uint;
     //Pricefeed interfaces
     AggregatorV3Interface internal ethFeed;
     AggregatorV3Interface internal linkFeed;
@@ -89,11 +92,11 @@ contract chainlinkOptions {
         updatePrices();
         if (tokenHash == ethHash) {
             require(msg.value == tknAmt, "Incorrect amount of ETH supplied"); 
-            uint latestCost = (strike*tknAmt)/(ethPrice*10**10); //current cost to exercise in ETH, decimal places corrected
+            uint latestCost = strike.mul(tknAmt).div(ethPrice.mul(10**10)); //current cost to exercise in ETH, decimal places corrected
             ethOpts.push(option(strike, premium, expiry, tknAmt, false, false, ethOpts.length, latestCost, msg.sender, address(0)));
         } else {
             require(LINK.transferFrom(msg.sender, contractAddr, tknAmt), "Incorrect amount of LINK supplied");
-            uint latestCost = (strike*tknAmt)/(linkPrice*10**10);
+            uint latestCost = strike.mul(tknAmt).div(linkPrice.mul(10**10));
             linkOpts.push(option(strike, premium, expiry, tknAmt, false, false, linkOpts.length, latestCost, msg.sender, address(0)));
         }
     }
@@ -151,7 +154,7 @@ contract chainlinkOptions {
             //Cost to exercise
             uint exerciseVal = ethOpts[ID].strike*ethOpts[ID].amount;
             //Equivalent ETH value using Chainlink feed
-            uint equivEth = exerciseVal/(ethPrice*10**10); //move decimal 10 places right to account for 8 places of pricefeed
+            uint equivEth = exerciseVal.div(ethPrice.mul(10**10)); //move decimal 10 places right to account for 8 places of pricefeed
             //Buyer exercises option by paying strike*amount equivalent ETH value
             require(msg.value == equivEth, "Incorrect LINK amount sent to exercise");
             //Pay writer the exercise cost
@@ -166,7 +169,7 @@ contract chainlinkOptions {
             require(linkOpts[ID].expiry >= now, "Option is expired");
             updatePrices();
             uint exerciseVal = linkOpts[ID].strike*linkOpts[ID].amount;
-            uint equivLink = exerciseVal/(linkPrice*10**10);
+            uint equivLink = exerciseVal.div(linkPrice.mul(10**10));
             //Buyer exercises option, exercise cost paid to writer
             require(LINK.transferFrom(msg.sender, linkOpts[ID].writer, equivLink), "Incorrect LINK amount sent to exercise");
             //Pay buyer contract amount of LINK
@@ -201,9 +204,9 @@ contract chainlinkOptions {
         require(tokenHash == ethHash || tokenHash == linkHash, "Only ETH and LINK tokens are supported");
         updatePrices();
         if (tokenHash == ethHash) {
-            ethOpts[ID].latestCost = ethOpts[ID].strike*ethOpts[ID].amount/(ethPrice*10**10);
+            ethOpts[ID].latestCost = ethOpts[ID].strike.mul(ethOpts[ID].amount).div(ethPrice.mul(10**10));
         } else {
-            linkOpts[ID].latestCost = linkOpts[ID].strike*linkOpts[ID].amount/(linkPrice*10**10);
+            linkOpts[ID].latestCost = linkOpts[ID].strike.mul(linkOpts[ID].amount).div(linkPrice.mul(10**10));
         }
     }
 }
