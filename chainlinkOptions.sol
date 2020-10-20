@@ -125,14 +125,14 @@ contract chainlinkOptions {
         require(tokenHash == ethHash || tokenHash == linkHash, "Only ETH and LINK tokens are supported");
         updatePrices();
         if (tokenHash == ethHash) {
-            require(!ethOpts[ID].canceled, "Option is canceled and cannot be bought");
+            require(!ethOpts[ID].canceled && ethOpts[ID].expiry > now, "Option is canceled/expired and cannot be bought");
             //Transfer premium payment from buyer
             require(msg.value == ethOpts[ID].premium, "Incorrect amount of ETH sent for premium");
             //Transfer premium payment to writer
             ethOpts[ID].writer.transfer(ethOpts[ID].premium);
             ethOpts[ID].buyer = msg.sender;
         } else {
-            require(!linkOpts[ID].canceled, "Option is canceled and cannot be bought");
+            require(!linkOpts[ID].canceled && linkOpts[ID].expiry > now, "Option is canceled/expired and cannot be bought");
             //Transfer premium payment from buyer to writer
             require(LINK.transferFrom(msg.sender, linkOpts[ID].writer, linkOpts[ID].premium), "Incorrect amount of LINK sent for premium");
             linkOpts[ID].buyer = msg.sender;
